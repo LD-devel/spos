@@ -137,5 +137,25 @@ void os_init(void) {
  *  \param str  The error to be displayed
  */
 void os_errorPStr(char const* str) {
-    #warning IMPLEMENT STH. HERE
+	//
+	lcd_writeProgString(str);
+	
+	//Save Interrupt Status
+	uint8_t savedMSB = SREG & 0b10000000;
+	
+	//Disable Interrupts
+	SREG &= 0b01111111;
+	
+	bool nEnterAndEscape = true;
+	
+	while(nEnterAndEscape){
+		os_waitForInput();
+		uint8_t input = os_getInput();
+		if( (input & 0b10000001) == 0b10000001){
+			nEnterAndEscape = false;
+		}
+	}
+	
+	lcd_writeProgString(PSTR(""));
+	SREG |= savedMSB;
 }
