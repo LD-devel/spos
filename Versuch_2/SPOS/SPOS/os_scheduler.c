@@ -20,7 +20,7 @@
 #warning IMPLEMENT STH. HERE
 
 //! Array of function pointers for every registered program
-#warning IMPLEMENT STH. HERE
+Programs* os_programs[MAX_NUMBER_OF_PROGRAMS];
 
 //! Index of process that is currently executed (default: idle)
 #warning IMPLEMENT STH. HERE
