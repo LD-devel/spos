@@ -16,11 +16,11 @@
 
 //! The type for the ID of a running process.
 #warning IMPLEMENT STH. HERE
-typedef ? ProcessID;
+typedef uint8_t ProcessID;
 
 //! The type for the ID of a program.
 #warning IMPLEMENT STH. HERE
-typedef ? ProgramID;
+typedef uint8_t ProgramID;
 
 //! The type of the priority of a process.
 typedef uint8_t Priority;
@@ -53,12 +53,15 @@ typedef union StackPointer {
  */
 #warning IMPLEMENT STH. HERE
 typedef struct {
-    ?
+    ProcessState state;
+	StackPointer sp;
+	ProgramID progID;
+	Priority priority;	 
 } Process;
 
 //! This is the type of a program function (not the pointer to one!).
 #warning IMPLEMENT STH. HERE
-typedef ? (Program)(?);
+typedef void (Program)(void);
 
 //! Specifies if a program should be automatically executed on boot-up.
 typedef enum {
