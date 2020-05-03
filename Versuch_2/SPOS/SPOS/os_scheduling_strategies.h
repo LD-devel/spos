@@ -16,6 +16,10 @@
 
 //! Structure used to store specific scheduling informations such as a time slice
 // This is a presence task
+typedef struct SchedulingInformation{
+	uint8_t timeSlice;
+	Age age[MAX_NUMBER_OF_PROCESSES];
+}SchedulingInformation;
 
 //! Used to reset the SchedulingInfo for one process
 void os_resetProcessSchedulingInformation(ProcessID id);
