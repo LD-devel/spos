@@ -17,7 +17,7 @@
 //----------------------------------------------------------------------------
 
 //! Array of states for every possible process
-#warning IMPLEMENT STH. HERE
+Process  os_processes[MAX_NUMBER_OF_PROCESSES]; 
 
 //! Array of function pointers for every registered program
 Program* os_programs[MAX_NUMBER_OF_PROGRAMS];
@@ -159,7 +159,35 @@ ProgramID os_lookupProgramID(Program* program) {
  *          INVALID_PROCESS as specified in defines.h).
  */
 ProcessID os_exec(ProgramID programID, Priority priority) {
-    #warning IMPLEMENT STH. HERE
+	//Find free slot
+	uint8_t j = 0; 
+    while(os_processes[j].state != OS_PS_UNUSED){
+		if (j == MAX_NUMBER_OF_PROCESSES - 1 ) return INVALID_PROCESS;
+		j++;
+	}
+	//Load function-pointer
+	Program* progPointer = os_lookupProgramFunction(programID);
+	if (progPointer == NULL) return INVALID_PROCESS;
+	//Save specifications
+	os_processes[j].state = OS_PS_READY;
+	os_processes[j].progID = programID;
+	os_processes[j].priority = priority;
+	//Configure process-stack
+	
+	StackPointer stack;
+	stack.as_int = PROCESS_STACK_BOTTOM(j);
+	*stack.as_ptr = (uint8_t) ((uint16_t) progPointer);
+	stack.as_ptr++;
+	*stack.as_ptr = (uint8_t) ( (uint16_t) progPointer >> 8);
+	for (uint8_t i = 0; i<33; i++){
+		stack.as_ptr++;
+		*stack.as_ptr = 0;
+	}
+	
+	//Save process-stack-pointer
+	os_processes[j].sp.as_int = PROCESS_STACK_BOTTOM(j);
+	
+	return j;
 }
 
 /*!
