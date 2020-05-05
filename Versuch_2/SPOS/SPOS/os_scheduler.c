@@ -216,7 +216,7 @@ ProcessID os_exec(ProgramID programID, Priority priority) {
 void os_startScheduler(void) {
     currentProc = 0;
 	os_processes[0].ProcessState = OS_PS_RUNNING;
-	StackPointer = PROCESS_STACK_BOTTOM(0);
+	SP = PROCESS_STACK_BOTTOM(0);
 	restoreContext();
 }
 
