@@ -137,7 +137,8 @@ void os_init(void) {
  *  \param str  The error to be displayed
  */
 void os_errorPStr(char const* str) {
-	//
+	
+	lcd_clear();
 	lcd_writeProgString(str);
 	
 	//Save Interrupt Status
@@ -146,16 +147,30 @@ void os_errorPStr(char const* str) {
 	//Disable Interrupts
 	SREG &= 0b01111111;
 	
-	bool nEnterAndEscape = true;
+	bool nEnterAndEscape = 1;
+	
+	/*while(1){
+		os_waitForInput();
+		uint8_t input = os_getInput();
+		lcd_clear();
+		if (gbi(input,0))lcd_writeString("null");
+		if (gbi(input,1))lcd_writeString("eins");
+		if (gbi(input,2))lcd_writeString("zwei");
+		if (gbi(input,3))lcd_writeString("drei");
+		if (gbi(input,4))lcd_writeString("vier");
+		if (gbi(input,5))lcd_writeString("fuenf");
+		if (gbi(input,6))lcd_writeString("sechs");
+		if (gbi(input,7))lcd_writeString("sieben+");
+	}*/
 	
 	while(nEnterAndEscape){
 		os_waitForInput();
 		uint8_t input = os_getInput();
 		if( (input & 0b10000001) == 0b10000001){
-			nEnterAndEscape = false;
+			nEnterAndEscape = 0;
 		}
 	}
-	
-	lcd_writeProgString(PSTR(""));
+	//Restore
+	lcd_clear();
 	SREG |= savedMSB;
 }
