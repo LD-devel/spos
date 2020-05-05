@@ -45,6 +45,28 @@ void os_resetProcessSchedulingInformation(ProcessID id) {
 }
 
 /*!
+ * Wrapper function to link SchedulingStrategy-values and their respective
+ * implementations.
+ */
+ProcessID os_Scheduler_byStrategy(Process const processes[], ProcessID current, SchedulingStrategy strat) {
+    switch(strat) {
+        case OS_SS_EVEN:
+            return os_Scheduler_Even(os_processes, currentProc);
+        case OS_SS_RANDOM:
+            return os_Scheduler_Random(os_processes, currentProc);
+        case OS_SS_RUN_TO_COMPLETION:
+            return os_Scheduler_RunToCompletion(os_processes, currentProc);
+        case OS_SS_ROUND_ROBIN:
+            return os_Scheduler_RoundRobin(os_processes, currentProc);
+        case OS_SS_INACTIVE_AGING:
+            return os_Scheduler_InactiveAging(os_processes, currentProc);
+        default:
+            os_error("Nonexisting scheduling strat"); // this should never happen
+            return current;
+    }
+}
+
+/*!
  *  This function implements the even strategy. Every process gets the same
  *  amount of processing time and is rescheduled after each scheduler call
  *  if there are other processes running other than the idle process.

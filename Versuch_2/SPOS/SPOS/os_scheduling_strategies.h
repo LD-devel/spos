@@ -27,6 +27,9 @@ void os_resetProcessSchedulingInformation(ProcessID id);
 //! Used to reset the SchedulingInfo for a strategy
 void os_resetSchedulingInformation(SchedulingStrategy strategy);
 
+//! Strategy wrapper
+ProcessID os_Scheduler_byStrategy(Process const processes[], ProcessID current, SchedulingStrategy strat);
+
 //! Even strategy
 ProcessID os_Scheduler_Even(Process const processes[], ProcessID current);
 
