@@ -232,7 +232,10 @@ ProcessID os_exec(ProgramID programID, Priority priority) {
  *  applications.
  */
 void os_startScheduler(void) {
-    #warning IMPLEMENT STH. HERE
+    currentProc = 0;
+	os_processes[0].ProcessState = OS_PS_RUNNING;
+	StackPointer = PROCESS_STACK_BOTTOM(0);
+	restoreContext();
 }
 
 /*!
