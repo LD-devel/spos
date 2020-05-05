@@ -188,15 +188,22 @@ ProgramID os_lookupProgramID(Program* program) {
  *          INVALID_PROCESS as specified in defines.h).
  */
 ProcessID os_exec(ProgramID programID, Priority priority) {
+    os_enterCriticalSection();
 	//Find free slot
 	uint8_t j = 0; 
     while(os_processes[j].state != OS_PS_UNUSED){
-		if (j == MAX_NUMBER_OF_PROCESSES - 1 ) return INVALID_PROCESS;
+		if (j == MAX_NUMBER_OF_PROCESSES - 1 ) { 
+		os_leaveCriticalSection();
+		return INVALID_PROCESS;
+		}
 		j++;
 	}
 	//Load function-pointer
 	Program* progPointer = os_lookupProgramFunction(programID);
-	if (progPointer == NULL) return INVALID_PROCESS;
+	if (progPointer == NULL) {
+	    os_leaveCriticalSection();
+	    return INVALID_PROCESS;
+	}
 	//Save specifications
 	os_processes[j].state = OS_PS_READY;
 	os_processes[j].progID = programID;
@@ -215,7 +222,7 @@ ProcessID os_exec(ProgramID programID, Priority priority) {
 	
 	//Save process-stack-pointer
 	os_processes[j].sp.as_int = PROCESS_STACK_BOTTOM(j) - 35;
-	
+	os_leaveCriticalSection();
 	return j;
 }
 
@@ -233,7 +240,18 @@ void os_startScheduler(void) {
  *  initialize its internal data-structures and register.
  */
 void os_initScheduler(void) {
-    #warning IMPLEMENT STH. HERE
+    uint16_t counter1;
+	uint16_t counter2;
+	for (counter1 = 0; counter1 < MAX_NUMBER_OF_PROCESSES; counter1++)
+    {
+		os_processes[counter1].ProcessState = OS_PS_UNUSED;
+    }
+	for (counter2 = 0; counter2 < MAX_NUMBER_OF_PROGRAMS; counter2++)
+	{
+		if(os_checkAutostartProgram(os_programs[counter2].ProgramID)){
+			os_exec(os_programs[counter2].ProgramID, DEFAULT_PRIORITY);
+		}
+	}
 }
 
 /*!
