@@ -290,7 +290,11 @@ SchedulingStrategy os_getSchedulingStrategy(void) {
  *  This function supports up to 255 nested critical sections.
  */
 void os_enterCriticalSection(void) {
-    #warning IMPLEMENT STH. HERE
+    uint8_t savedGIEB = SREG & 0b10000000;
+	SREG &= 0b01111111;
+	criticalSectionCount++;
+	TIMSK2 &= 0b11111101;
+	SREG |= savedGIEB;
 }
 
 /*!
@@ -310,5 +314,16 @@ void os_leaveCriticalSection(void) {
  *  \return The checksum of the pid'th stack.
  */
 StackChecksum os_getStackChecksum(ProcessID pid) {
-    #warning IMPLEMENT STH. HERE
+    if (criticalSectionCount == 0)
+    {
+    } else {
+		uint8_t saveGIEB = SREG & 0b10000000;
+		SREG &= 0b01111111;
+		criticalSectionCount--;
+		if (criticalSectionCount == 0)
+		{
+			TIMSK2 |= 0b00000010;
+		}
+		SREG |= saveGIEB;
+	}
 }
