@@ -58,7 +58,33 @@ ISR(TIMER2_COMPA_vect) __attribute__((naked));
  *  the processor to that process.
  */
 ISR(TIMER2_COMPA_vect) {
-    #warning IMPLEMENT STH. HERE
+    saveContext();
+    os_processes[currentProc].stack.as_int = SP;
+    SP = BOTTOM_OF_ISR_STACK;
+    
+    switch(os_getSchedulingStrategy()) {
+        case OS_SS_EVEN:
+            currentProc = os_Scheduler_Even(os_processes, currentProc);
+            break;
+        case OS_SS_RANDOM:
+            currentProc = os_Scheduler_Random(os_processes, currentProc);
+            break;
+        case OS_SS_RUN_TO_COMPLETION:
+            currentProc = os_Scheduler_RunToCompletion(os_processes, currentProc);
+            break;
+        case OS_SS_ROUND_ROBIN:
+            currentProc = os_Scheduler_RoundRobin(os_processes, currentProc);
+            break;
+        case OS_SS_INACTIVE_AGING:
+            currentProc = os_Scheduler_InactiveAging(os_processes, currentProc);
+            break;
+        default:
+            os_errorPStr("Nonexisting scheduling strat"); // this should never happen
+    }
+    
+    os_processes[currentProc].state = OS_PS_RUNNING;
+    SP = os_processes[currentProc].stack.as_int;
+    restoreContext();
 }
 
 /*!
@@ -103,7 +129,10 @@ bool os_checkAutostartProgram(ProgramID programID) {
  *  and processor time no other process wants to have.
  */
 PROGRAM(0, AUTOSTART) {
-    #warning IMPLEMENT STH. HERE
+    while (1) {
+        lcd_writeChar('.');
+        delayMs(DEFAULT_OUTPUT_DELAY);
+    }
 }
 
 /*!
