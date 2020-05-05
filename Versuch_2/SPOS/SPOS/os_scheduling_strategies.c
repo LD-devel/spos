@@ -47,6 +47,11 @@ void os_resetProcessSchedulingInformation(ProcessID id) {
 /*!
  * Wrapper function to link SchedulingStrategy-values and their respective
  * implementations.
+ *
+ * \param processes An array holding the processes to choose the next process from.
+ * \param current The id of the current process.
+ * \param strat The scheduling strategy that should be used.
+ * \return The next process to be executed determined on the basis of the given strategy.
  */
 ProcessID os_Scheduler_byStrategy(Process const processes[], ProcessID current, SchedulingStrategy strat) {
     switch(strat) {
