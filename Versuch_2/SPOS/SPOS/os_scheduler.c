@@ -177,15 +177,15 @@ ProcessID os_exec(ProgramID programID, Priority priority) {
 	StackPointer stack;
 	stack.as_int = PROCESS_STACK_BOTTOM(j);
 	*stack.as_ptr = (uint8_t) ((uint16_t) progPointer);
-	stack.as_ptr++;
+	stack.as_ptr--;
 	*stack.as_ptr = (uint8_t) ( (uint16_t) progPointer >> 8);
 	for (uint8_t i = 0; i<33; i++){
-		stack.as_ptr++;
+		stack.as_ptr--;
 		*stack.as_ptr = 0;
 	}
 	
 	//Save process-stack-pointer
-	os_processes[j].sp.as_int = PROCESS_STACK_BOTTOM(j);
+	os_processes[j].sp.as_int = PROCESS_STACK_BOTTOM(j) - 35;
 	
 	return j;
 }
