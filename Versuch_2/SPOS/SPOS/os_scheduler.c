@@ -23,7 +23,7 @@ Process  os_processes[MAX_NUMBER_OF_PROCESSES];
 Program* os_programs[MAX_NUMBER_OF_PROGRAMS];
 
 //! Index of process that is currently executed (default: idle)
-#warning IMPLEMENT STH. HERE
+ProcessID currentProc = 0;
 
 //----------------------------------------------------------------------------
 // Private variables
@@ -33,7 +33,7 @@ Program* os_programs[MAX_NUMBER_OF_PROGRAMS];
 #warning IMPLEMENT STH. HERE
 
 //! Count of currently nested critical sections
-#warning IMPLEMENT STH. HERE
+uint16_t criticalSectionCount;
 
 //! Used to auto-execute programs.
 uint16_t os_autostart;
