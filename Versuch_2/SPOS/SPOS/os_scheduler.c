@@ -79,7 +79,7 @@ ISR(TIMER2_COMPA_vect) {
             currentProc = os_Scheduler_InactiveAging(os_processes, currentProc);
             break;
         default:
-            os_errorPStr("Nonexisting scheduling strat"); // this should never happen
+            os_error("Nonexisting scheduling strat"); // this should never happen
     }
     
     os_processes[currentProc].state = OS_PS_RUNNING;
