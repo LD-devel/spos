@@ -304,16 +304,6 @@ void os_enterCriticalSection(void) {
  *  has to be reactivated.
  */
 void os_leaveCriticalSection(void) {
-    #warning IMPLEMENT STH. HERE
-}
-
-/*!
- *  Calculates the checksum of the stack for a certain process.
- *
- *  \param pid The ID of the process for which the stack's checksum has to be calculated.
- *  \return The checksum of the pid'th stack.
- */
-StackChecksum os_getStackChecksum(ProcessID pid) {
     if (criticalSectionCount == 0)
     {
     } else {
@@ -326,4 +316,14 @@ StackChecksum os_getStackChecksum(ProcessID pid) {
 		}
 		SREG |= saveGIEB;
 	}
+}
+
+/*!
+ *  Calculates the checksum of the stack for a certain process.
+ *
+ *  \param pid The ID of the process for which the stack's checksum has to be calculated.
+ *  \return The checksum of the pid'th stack.
+ */
+StackChecksum os_getStackChecksum(ProcessID pid) {
+    #warning
 }
