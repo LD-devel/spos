@@ -204,7 +204,18 @@ void os_startScheduler(void) {
  *  initialize its internal data-structures and register.
  */
 void os_initScheduler(void) {
-    #warning IMPLEMENT STH. HERE
+    uint16_t counter1;
+	uint16_t counter2;
+	for (counter1 = 0; counter1 < MAX_NUMBER_OF_PROCESSES; counter1++)
+    {
+		os_processes[counter1].ProcessState = OS_PS_UNUSED;
+    }
+	for (counter2 = 0; counter2 < MAX_NUMBER_OF_PROGRAMS; counter2++)
+	{
+		if(os_checkAutostartProgram(os_programs[counter2].ProgramID)){
+			os_exec(os_programs[counter2].ProgramID, DEFAULT_PRIORITY);
+		}
+	}
 }
 
 /*!
