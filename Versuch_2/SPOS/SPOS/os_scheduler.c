@@ -62,12 +62,22 @@ ISR(TIMER2_COMPA_vect) {
     os_processes[currentProc].stack.as_int = SP;
     SP = BOTTOM_OF_ISR_STACK;
     
+    os_processes[0] = OS_PS_READY;
+    checkforTaskMain();
     currentProc = os_Scheduler_byStrategy(os_processes, currentProc, os_getSchedulingStrategy());
-    
     os_processes[currentProc].state = OS_PS_RUNNING;
     SP = os_processes[currentProc].stack.as_int;
     restoreContext();
 }
+
+//Hilfsfunktion für Taskmanager
+void checkforTaskMan(void) {
+    if((~PINC & 0b10000001) == 0b10000001) {
+        os_waitForNoInput();
+        os_taskManMain();
+    }
+}
+
 
 /*!
  *  Used to register a function as program. On success the program is written to
