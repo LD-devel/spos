@@ -30,7 +30,7 @@ ProcessID currentProc = 0;
 //----------------------------------------------------------------------------
 
 //! Currently active scheduling strategy
-#warning IMPLEMENT STH. HERE
+SchedulingStrategy currentSchedulingStrategy;
 
 //! Count of currently nested critical sections
 uint16_t criticalSectionCount;
@@ -275,7 +275,7 @@ Program** os_getProgramSlot(ProgramID programID) {
  *  \return The process id of the currently active process.
  */
 ProcessID os_getCurrentProc(void) {
-    #warning IMPLEMENT STH. HERE
+    return currentProc;
 }
 
 /*!
@@ -312,7 +312,7 @@ uint8_t os_getNumberOfRegisteredPrograms(void) {
  *  \param strategy The strategy that will be used after the function finishes.
  */
 void os_setSchedulingStrategy(SchedulingStrategy strategy) {
-    #warning IMPLEMENT STH. HERE
+    currentSchedulingStrategy = strategy;
 }
 
 /*!
@@ -321,7 +321,7 @@ void os_setSchedulingStrategy(SchedulingStrategy strategy) {
  *  \return The current scheduling strategy.
  */
 SchedulingStrategy os_getSchedulingStrategy(void) {
-    #warning IMPLEMENT STH. HERE
+    return currentSchedulingStrategy;
 }
 
 /*!
