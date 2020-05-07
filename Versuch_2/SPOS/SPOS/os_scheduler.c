@@ -65,7 +65,13 @@ ISR(TIMER2_COMPA_vect) {
 
     os_processes[currentProc].hash = os_getStackChecksum(currentProc);
 
-    checkforTaskMan();
+
+    //checks for ESC + Enter to open Task Manager
+    if((~PINC & 0b10000001) == 0b10000001) {
+        os_waitForNoInput();
+        os_taskManMain();
+    }
+    
     currentProc = os_Scheduler_byStrategy(os_processes, currentProc, os_getSchedulingStrategy());
 
     // TODO temporary; should never select idle process when there are other processes in the ready state.
@@ -79,13 +85,7 @@ ISR(TIMER2_COMPA_vect) {
     restoreContext();
 }
 
-//Hilfsfunktion für Taskmanager
-void checkforTaskMan(void) {
-    if((~PINC & 0b10000001) == 0b10000001) {
-        os_waitForNoInput();
-        os_taskManMain();
-    }
-}
+
 
 
 /*!
@@ -253,8 +253,8 @@ void os_initScheduler(void) {
     }
 	for (counter2 = 0; counter2 < MAX_NUMBER_OF_PROGRAMS; counter2++)
 	{
-		if(os_checkAutostartProgram(os_programs[counter2].ProgramID)){
-			os_exec(os_programs[counter2].ProgramID, DEFAULT_PRIORITY);
+		if(os_checkAutostartProgram(counter2)){
+			os_exec(counter2, DEFAULT_PRIORITY);
 		}
 	}
 }
