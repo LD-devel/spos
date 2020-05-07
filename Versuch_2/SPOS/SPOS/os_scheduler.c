@@ -59,12 +59,21 @@ ISR(TIMER2_COMPA_vect) __attribute__((naked));
  */
 ISR(TIMER2_COMPA_vect) {
     saveContext();
+    os_processes[currentProc].state = OS_PS_READY;
     os_processes[currentProc].stack.as_int = SP;
     SP = BOTTOM_OF_ISR_STACK;
-    
-    os_processes[0] = OS_PS_READY;
-    checkforTaskMain();
+
+    os_processes[currentProc].hash = os_getStackChecksum(currentProc);
+
+    checkforTaskMan();
     currentProc = os_Scheduler_byStrategy(os_processes, currentProc, os_getSchedulingStrategy());
+
+    // TODO temporary; should never select idle process when there are other processes in the ready state.
+    if (os_processes[currentProc].hash != os_getStackChecksum(currentProc)) {
+        os_errorPStr("Stack inconsistency detected!");
+        currentProc = 0;
+    }
+
     os_processes[currentProc].state = OS_PS_RUNNING;
     SP = os_processes[currentProc].stack.as_int;
     restoreContext();
@@ -214,6 +223,7 @@ ProcessID os_exec(ProgramID programID, Priority priority) {
 	
 	//Save process-stack-pointer
 	os_processes[j].sp.as_int = PROCESS_STACK_BOTTOM(j) - 35;
+    os_processes[j].hash = os_getStackChecksum(j); // should always be 0
 	os_leaveCriticalSection();
 	return j;
 }
