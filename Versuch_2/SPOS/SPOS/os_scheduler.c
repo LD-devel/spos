@@ -379,9 +379,9 @@ void os_leaveCriticalSection(void) {
 StackChecksum os_getStackChecksum(ProcessID pid) {
     os_enterCriticalSection();
     uint8_t hash = 0;
-    uint16_t btm = PROCESS_STACK_BOTTOM(pid);
-    for (uint16_t addr = btm; addr > btm - STACK_SIZE_PROC; addr--) {
-        hash ^= (uint8_t)(*(addr));
+    uint8_t* btm = PROCESS_STACK_BOTTOM(pid);
+    for (uint16_t i = 0; i < STACK_SIZE_PROC; i++) {
+        hash ^= *(addr--);
     }
     os_leaveCriticalSection();
     return hash;
