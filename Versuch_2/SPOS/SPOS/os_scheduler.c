@@ -33,7 +33,7 @@ ProcessID currentProc = 0;
 SchedulingStrategy currentSchedulingStrategy;
 
 //! Count of currently nested critical sections
-uint16_t criticalSectionCount;
+uint16_t criticalSectionCount = 0;
 
 //! Used to auto-execute programs.
 uint16_t os_autostart;
@@ -367,5 +367,10 @@ void os_leaveCriticalSection(void) {
  *  \return The checksum of the pid'th stack.
  */
 StackChecksum os_getStackChecksum(ProcessID pid) {
-    #warning
+    uint8_t hash = 0;
+    uint16_t btm = PROCESS_STACK_BOTTOM(pid);
+    for (uint16_t addr = btm; addr > btm - STACK_SIZE_PROC; addr--) {
+        hash ^= (uint8_t)(*(addr));
+    }
+    return hash;
 }
