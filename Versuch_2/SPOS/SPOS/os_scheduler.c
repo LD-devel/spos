@@ -367,10 +367,12 @@ void os_leaveCriticalSection(void) {
  *  \return The checksum of the pid'th stack.
  */
 StackChecksum os_getStackChecksum(ProcessID pid) {
+    os_enterCriticalSection();
     uint8_t hash = 0;
     uint16_t btm = PROCESS_STACK_BOTTOM(pid);
     for (uint16_t addr = btm; addr > btm - STACK_SIZE_PROC; addr--) {
         hash ^= (uint8_t)(*(addr));
     }
+    os_leaveCriticalSection();
     return hash;
 }
