@@ -60,7 +60,7 @@ ISR(TIMER2_COMPA_vect) __attribute__((naked));
 ISR(TIMER2_COMPA_vect) {
     saveContext();
     os_processes[currentProc].state = OS_PS_READY;
-    os_processes[currentProc].sp.as_ptr = SP;
+    os_processes[currentProc].sp.as_int = SP;
     SP = BOTTOM_OF_ISR_STACK;
 
     os_processes[currentProc].hash = os_getStackChecksum(currentProc);
@@ -81,7 +81,7 @@ ISR(TIMER2_COMPA_vect) {
     }
 
     os_processes[currentProc].state = OS_PS_RUNNING;
-    SP = os_processes[currentProc].sp.as_ptr;
+    SP = os_processes[currentProc].sp.as_int;
     restoreContext();
 }
 
@@ -379,7 +379,7 @@ void os_leaveCriticalSection(void) {
 StackChecksum os_getStackChecksum(ProcessID pid) {
     os_enterCriticalSection();
     uint8_t hash = 0;
-    uint8_t* addr = PROCESS_STACK_BOTTOM(pid);
+    uint8_t* addr = (uint8_t*)((uint16_t)(PROCESS_STACK_BOTTOM(pid)));
     for (uint16_t i = 0; i < STACK_SIZE_PROC; i++) {
         hash ^= *(addr--);
     }
