@@ -1,6 +1,7 @@
 #include "os_scheduling_strategies.h"
 #include "defines.h"
 #include "os_process.h"
+#include "os_core.h"
 
 #include <stdlib.h>
 
@@ -56,17 +57,17 @@ void os_resetProcessSchedulingInformation(ProcessID id) {
 ProcessID os_Scheduler_byStrategy(Process const processes[], ProcessID current, SchedulingStrategy strat) {
     switch(strat) {
         case OS_SS_EVEN:
-            return os_Scheduler_Even(os_processes, currentProc);
+            return os_Scheduler_Even(processes, current);
         case OS_SS_RANDOM:
-            return os_Scheduler_Random(os_processes, currentProc);
+            return os_Scheduler_Random(processes, current);
         case OS_SS_RUN_TO_COMPLETION:
-            return os_Scheduler_RunToCompletion(os_processes, currentProc);
+            return os_Scheduler_RunToCompletion(processes, current);
         case OS_SS_ROUND_ROBIN:
-            return os_Scheduler_RoundRobin(os_processes, currentProc);
-        case OS_SS_INACTIVE_AGING:
-            return os_Scheduler_InactiveAging(os_processes, currentProc);
+            return os_Scheduler_RoundRobin(processes, current);
+            case OS_SS_INACTIVE_AGING:
+            return os_Scheduler_InactiveAging(processes, current);
         default:
-            os_error("Nonexisting scheduling strat"); // this should never happen
+            os_errorPStr("Non-existing scheduling strat"); // this should never happen
             return current;
     }
 }
