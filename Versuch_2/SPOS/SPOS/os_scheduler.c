@@ -67,17 +67,16 @@ ISR(TIMER2_COMPA_vect) {
 
 
     //checks for ESC + Enter to open Task Manager
-    if((~PINC & 0b10000001) == 0b10000001) {
+    if(os_getInput() == 0b00001001) {
         os_waitForNoInput();
-        os_taskManMain();
+        os_taskManOpen();
     }
     
     currentProc = os_Scheduler_byStrategy(os_processes, currentProc, os_getSchedulingStrategy());
 
     // TODO temporary; should never select idle process when there are other processes in the ready state.
     if (os_processes[currentProc].hash != os_getStackChecksum(currentProc)) {
-        os_errorPStr("Stack inconsistency detected!");
-        currentProc = 0;
+        os_error("Stack broken!");
     }
 
     os_processes[currentProc].state = OS_PS_RUNNING;
@@ -215,7 +214,7 @@ ProcessID os_exec(ProgramID programID, Priority priority) {
 	stack.as_int = PROCESS_STACK_BOTTOM(j);
 	*stack.as_ptr = (uint8_t) ((uint16_t) progPointer);
 	stack.as_ptr--;
-	*stack.as_ptr = (uint8_t) ( (uint16_t) progPointer >> 8);
+	*stack.as_ptr = (uint8_t) ( ((uint16_t) progPointer) >> 8);
 	for (uint8_t i = 0; i<33; i++){
 		stack.as_ptr--;
 		*stack.as_ptr = 0;
@@ -224,6 +223,8 @@ ProcessID os_exec(ProgramID programID, Priority priority) {
 	//Save process-stack-pointer
 	os_processes[j].sp.as_int = PROCESS_STACK_BOTTOM(j) - 35;
     os_processes[j].hash = os_getStackChecksum(j); // should always be 0
+	
+	os_resetProcessSchedulingInformation(j);
 	os_leaveCriticalSection();
 	return j;
 }
@@ -323,6 +324,7 @@ uint8_t os_getNumberOfRegisteredPrograms(void) {
  */
 void os_setSchedulingStrategy(SchedulingStrategy strategy) {
     currentSchedulingStrategy = strategy;
+	os_resetSchedulingInformation(currentSchedulingStrategy);
 }
 
 /*!
@@ -381,7 +383,7 @@ StackChecksum os_getStackChecksum(ProcessID pid) {
     uint8_t hash = 0;
     uint8_t* addr = (uint8_t*)((uint16_t)(PROCESS_STACK_BOTTOM(pid)));
     for (uint16_t i = 0; i < STACK_SIZE_PROC; i++) {
-        hash ^= *(addr--);
+        hash = hash ^ *(addr--);
     }
     os_leaveCriticalSection();
     return hash;

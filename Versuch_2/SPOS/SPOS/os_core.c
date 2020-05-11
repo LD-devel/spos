@@ -4,9 +4,11 @@
 #include "lcd.h"
 #include "os_input.h"
 
+#include "os_scheduler.h"
+
 #include <avr/interrupt.h>
 
-void os_initScheduler(void);
+// void os_initScheduler(void);
 
 //variable specially forcing the c/c++ linker to not initialize the variable so we can detect its initialized state
 uint8_t softResetDetector __attribute__ ((section (".noinit")));
@@ -138,14 +140,15 @@ void os_init(void) {
  */
 void os_errorPStr(char const* str) {
 	
-	lcd_clear();
-	lcd_writeProgString(str);
-	
 	//Save Interrupt Status
 	uint8_t savedMSB = SREG & 0b10000000;
 	
 	//Disable Interrupts
 	SREG &= 0b01111111;
+	
+	lcd_clear();
+	lcd_writeProgString(str);
+	
 	
 	bool nEnterAndEscape = 1;
 	
@@ -166,7 +169,8 @@ void os_errorPStr(char const* str) {
 	while(nEnterAndEscape){
 		os_waitForInput();
 		uint8_t input = os_getInput();
-		if( (input & 0b10000001) == 0b10000001){
+		if( (input & 0b00001001) == 0b00001001){
+			os_waitForNoInput();
 			nEnterAndEscape = 0;
 		}
 	}

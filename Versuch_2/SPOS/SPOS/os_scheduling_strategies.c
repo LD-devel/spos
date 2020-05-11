@@ -17,19 +17,18 @@ SchedulingInformation schedulingInfo;
 void os_resetSchedulingInformation(SchedulingStrategy strategy) {
     // This is a presence task
 	switch(strategy) {
-		case OS_SS_ROUND_ROBIN :
-		schedulingInfo.timeSlice = os_getProcessSlot(os_getCurrentProc())->priority;
+		case OS_SS_ROUND_ROBIN:
+			schedulingInfo.timeSlice = os_getProcessSlot(os_getCurrentProc())->priority - 1;
+			break;
 		
-		break;
-		
-		case OS_SS_INACTIVE_AGING : 
-		for (uint8_t i=0; i<MAX_NUMBER_OF_PROCESSES; i++){
-			schedulingInfo.age[i] = 0;
-		}
-		break;
+		case OS_SS_INACTIVE_AGING: 
+			for (uint8_t i=0; i<MAX_NUMBER_OF_PROCESSES; i++){
+				schedulingInfo.age[i] = 0;
+			}
+			break;
 		
 		default:
-		break;
+			break;
 	}
 }
 
@@ -64,10 +63,10 @@ ProcessID os_Scheduler_byStrategy(Process const processes[], ProcessID current, 
             return os_Scheduler_RunToCompletion(processes, current);
         case OS_SS_ROUND_ROBIN:
             return os_Scheduler_RoundRobin(processes, current);
-            case OS_SS_INACTIVE_AGING:
+        case OS_SS_INACTIVE_AGING:
             return os_Scheduler_InactiveAging(processes, current);
         default:
-            os_errorPStr("Non-existing scheduling strat"); // this should never happen
+            os_errorPStr(PSTR("Non-existing scheduling strat")); // this should never happen
             return current;
     }
 }
@@ -156,19 +155,38 @@ ProcessID os_Scheduler_RoundRobin(Process const processes[], ProcessID current) 
  */
 ProcessID os_Scheduler_InactiveAging(Process const processes[], ProcessID current) {
     // This is a presence task
+	//filter processes
+	uint8_t readyCount = 0; 
+	//Count all ready Processes except for "Leerlaufprozess" at PID = 0
+	for (uint8_t i=1; i < MAX_NUMBER_OF_PROCESSES; i++){
+		if (processes[i].state == OS_PS_READY) readyCount++;
+	}
+	if (readyCount == 0) return 0;
+	//List all PIDs of ready processes
+	uint8_t readyPIDs[readyCount];
+	uint8_t j = 0; 
+	for (uint8_t i=1; i < MAX_NUMBER_OF_PROCESSES; i++){
+		if (processes[i].state == OS_PS_READY){
+			readyPIDs[j] = i; 
+			j++;
+		}
+	}
+	//actual inactive aging
 	uint8_t next = 1;
-	for(uint8_t i=0;i<MAX_NUMBER_OF_PROCESSES;i++){
-		
-		if (i != current)schedulingInfo.age[i] += processes[i].priority;
-		
-		if (schedulingInfo.age[i]>schedulingInfo.age[next]){
-			next = i;
-		} else if (schedulingInfo.age[i] == schedulingInfo.age[next]){
-			if (processes[i].priority > processes[next].priority){
-				next = i; 
+	
+	for(uint8_t i=0; i<readyCount; i++){
+		if (readyPIDs[i] != current){
+			schedulingInfo.age[readyPIDs[i]] += processes[readyPIDs[i]].priority;
+		}
+		if (schedulingInfo.age[readyPIDs[i]]>schedulingInfo.age[next]){
+			next = readyPIDs[i];
+		} else if (schedulingInfo.age[readyPIDs[i]] == schedulingInfo.age[next]){
+			if (processes[readyPIDs[i]].priority > processes[next].priority){
+				next = readyPIDs[i]; 
 			}
 		}
 	}
+	schedulingInfo.age[next] = processes[next].priority;
     return next;
 }
 
